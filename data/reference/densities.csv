@@ -1,0 +1,8 @@
+material,density_kg_m3,source,confirmed,note
+Concrete > In-Situ Concrete > By Strength Class > 32/40 MPa,2400,"BS EN 1991-1-1 Annex A, Table A.1: normal weight plain concrete, 24 kN/m3",yes,Rebar is a separate component. 24 kN/m3 is read as 2400 kg/m3 (taking g as 10 m/s2; with g = 9.81 m/s2 it would be about 2447 kg/m3).
+Concrete > In-Situ Concrete > By Strength Class > With CEM I > 32/40 (32/40 MPa),2400,"BS EN 1991-1-1 Annex A, Table A.1: normal weight plain concrete, 24 kN/m3",yes,Rebar is a separate component. 24 kN/m3 is read as 2400 kg/m3 (taking g as 10 m/s2; with g = 9.81 m/s2 it would be about 2447 kg/m3).
+Concrete > In-Situ Concrete > By Strength Class > % Cement Replacement - Blast Furnace Slag > 50% > 32/40 (32/40 MPa),2400,"BS EN 1991-1-1 Annex A, Table A.1: normal weight plain concrete, 24 kN/m3",yes,Rebar is a separate component. 24 kN/m3 is read as 2400 kg/m3 (taking g as 10 m/s2; with g = 9.81 m/s2 it would be about 2447 kg/m3). ASSUMPTION: the GGBS mix has the same density as the CEM I mix.
+"Timber > Timber, Glulam",420,"BS EN 14080, strength class GL24h, mean density",yes,
+"Timber > Timber, CLT",490,Stora Enso CLT technical brochure: 'approx. 490 kg/m3' for weight determination,yes,
+"Plaster > Plaster, Plasterboard",616,"British Gypsum Gyproc WallBoard 12.5 mm product data sheet: minimum weight 7.7 kg/m2, divided by 0.0125 m",yes,"Derived from the MINIMUM weight, so it may be slightly low."
+"Insulation > Insulation, Mineral Wool",45,"Rockwool RWA45 slab, NBS Source listing",yes,ASSUMPTION: product chosen for stud/partition insulation; revisit after the wall build-ups are fixed in Part 3. Insulation carbon scales directly with this value.
