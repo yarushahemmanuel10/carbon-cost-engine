@@ -29,12 +29,13 @@ company, and it is not a commercial tool.
 
 ## Set up
 
-Needs Python 3.11 or newer (with SQLite 3.37 or newer, which Python 3.11 normally includes).
+Needs Python 3.9 or newer, with SQLite 3.37 or newer (the code checks this and says so if it is older). The tests pass on Python 3.9 and 3.10. On a Mac, upgrade pip inside the virtual environment first (`python -m pip install --upgrade pip`): the pip that comes with the Mac's Python 3.9 is too old for an editable install.
 
 ```
 python -m venv .venv
 source .venv/bin/activate          # on Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
 python -m pytest
 ```
 

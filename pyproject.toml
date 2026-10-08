@@ -9,7 +9,7 @@ description = "A small learning prototype that links embodied carbon (A1-A3) to 
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "openpyxl>=3.1",
     "flask>=3.0",
