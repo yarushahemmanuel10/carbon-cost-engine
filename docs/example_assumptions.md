@@ -73,6 +73,10 @@ Steel rebar is also made in the primary production route in Europe."* So
 version A3 shows the effect of choosing **EAF-route** rebar. It is not a
 claim about UK or European rebar in general.
 
+Carbon factor values themselves are not written in this repository: the
+ICE licence does not allow them to be redistributed. They are loaded from
+your own copy of ICE and shown by the app.
+
 ## Densities
 
 Every density cites its own source in `data/reference/densities.csv`.

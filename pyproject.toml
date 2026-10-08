@@ -25,6 +25,7 @@ carbon-cost-import-project = "carbon_cost.ingest.project:main"
 carbon-cost-assess = "carbon_cost.engine:main"
 carbon-cost-app = "carbon_cost.app.__main__:main"
 carbon-cost-export = "carbon_cost.export:main"
+carbon-cost-sensitivity = "carbon_cost.sensitivity:main"
 
 [tool.setuptools.packages.find]
 include = ["carbon_cost*"]

@@ -1,170 +1,159 @@
-# carbon-cost-engine
+# Carbon-Cost Engine
 
-A small learning prototype that links **embodied carbon** to a **cost plan**,
-so that one list of quantities gives both a cost and a carbon figure.
+**Embodied carbon alongside the cost plan.** One list of quantities, laid
+out like a quantity surveyor's cost plan, gives both a cost and an embodied
+carbon figure, so design options can be compared on both before decisions
+are fixed.
 
-This is an independent personal project. It is not affiliated with any
-company, and it is not a commercial tool.
+A personal learning project by Yarushah Emmanuel Sardar. It is an
+independent prototype, not a commercial tool, and not affiliated with any
+company.
 
-> **Status: work in progress.** Built so far: the database (Part 1), the
-> ICE ingestion (Part 2), the project import with an example building
-> (Part 3), the calculation engine (Part 4), the web interface (Part 5)
-> and charts with a Power BI export (Part 6). Not built yet: the write-up. This README will be completed at the end; for now it
-> covers what exists.
+![Design options compared: carbon per m2 by element, and cost against carbon](docs/screenshots/charts.png)
 
-## What is here
+## What it found
+
+For an illustrative 3,000 m2 office (product stage A1-A3, structure and
+envelope; full write-up in [`docs/writeup.md`](docs/writeup.md)):
+
+| Design option | kgCO2e/m2 | vs concrete | Cost/m2 (illustrative) |
+|---|---:|---:|---:|
+| A - concrete flat slab | 238 | | £525 |
+| A + 50% GGBS + EAF-route rebar | 155 | -35% | £525 |
+| B - glulam frame, CLT floors | 127 | -47% | £578 |
+| B + GGBS and EAF rebar in the foundations | 105 | -56% | £578 |
+
+- Slabs and foundations are 83% of the concrete option's embodied carbon.
+- Two specification choices, with no design change, deliver about three
+  quarters of the saving of a change to timber.
+- Which rebar factor is used moves the result by 17%: data choices need
+  recording as carefully as design choices.
+
+## What it does
+
+- **Loads carbon factors** from the ICE Database (a report-style
+  spreadsheet with 64 tables in 14 layouts). Every row is loaded or rejected
+  with a reason (502 loaded, 228 rejected), and nothing is guessed.
+- **Imports a project** from CSV files laid out like a cost plan (NRM1
+  elements, items, and the materials inside each item). Everything is
+  checked first, and every problem is listed at once.
+- **Calculates** carbon per material and cost per item with the factors and
+  rates valid on a chosen date, and **saves each run as a permanent record**
+  of the exact rows it used. Any past result can be reproduced.
+- **Shows** cost and carbon side by side by element, compares options, runs
+  what-if material swaps without saving, draws charts, and exports a flat
+  CSV for **Power BI**.
+
+![Results page: headline figures and carbon by element](docs/screenshots/results.png)
+
+## Design decisions worth knowing
+
+- **Nothing is overwritten.** Carbon factors and cost rates are replaced
+  with a new dated row and never edited or deleted. Database triggers refuse
+  any assessment line that cites the wrong material's factor, a factor not
+  valid on the assessment date, or a carbon figure that is not quantity x
+  factor. ([design note](docs/design_note.md), section 4)
+- **Nothing is converted to fit.** A per-m2 factor is never turned into a
+  per-kg one; a volume only becomes a mass with a cited density.
+- **Biogenic carbon is reported, never subtracted**, because the end-of-life
+  release is not modelled.
+- **One item, several materials.** A slab is concrete plus the rebar inside
+  it, linked explicitly so the rebar uses the right volume.
+- **Data governance built in.** Each source records its licence and whether
+  it may be redistributed; that flag travels into every export row.
+
+## Run it
+
+Needs Python 3.9 or newer with SQLite 3.37 or newer (the code checks and
+says so if it is older). Tested on Python 3.9 and 3.10.
+
+```
+python3 -m venv .venv
+source .venv/bin/activate                # Windows: .venv\Scripts\activate
+python -m pip install --upgrade pip      # the pip that comes with macOS Python 3.9 is too old
+python -m pip install -e ".[dev]"
+python -m pytest                          # 194 tests; they need no ICE data
+```
+
+Then get the carbon data and build the database:
+
+1. Download **ICE Database Educational V5.0** from
+   <https://circularecology.com/embodied-carbon-footprint-database.html>
+   and save it as `data/raw/ICE_DB_Educational_V5.0_-_Jun_2026.xlsx`.
+2. Load everything and run the example:
+
+   ```
+   python -m carbon_cost.ingest.ice           # carbon factors (prints what was loaded and rejected)
+   python -m carbon_cost.ingest.densities     # confirmed densities
+   python -m carbon_cost.ingest.project       # illustrative cost rates + the example office
+   python -m carbon_cost.engine --as-of 2026-10-01
+   python -m carbon_cost.app                  # then open http://127.0.0.1:5000
+   ```
+
+3. Optional:
+
+   ```
+   python -m carbon_cost.sensitivity          # the sensitivity table in the write-up
+   python -m carbon_cost.export               # CSV for Power BI, written to exports/
+   ```
+
+The ingestion writes `data/staging/` files (the raw sheet, every accepted
+factor, every rejected row with its reason) so each decision can be checked
+by eye.
+
+## Project layout
 
 | Path | What it is |
 |---|---|
-| `carbon_cost/schema.sql` | The database: tables and the rules the database enforces itself |
-| `carbon_cost/db.py` | Opens the database (foreign keys always on), transactions, superseding a factor |
-| `carbon_cost/ingest/ice.py` | Reads the ICE summary sheet and loads the carbon factors |
-| `carbon_cost/ingest/densities.py` | Lists density candidates; loads the densities a person has confirmed |
-| `carbon_cost/app/` | The web interface (Flask): results, what-if swaps, comparison, upload |
-| `carbon_cost/charts.py` | Charts drawn as SVG on the server (no JavaScript); colour-blind-checked palette |
+| `carbon_cost/schema.sql` | The database, including the rules it enforces itself (triggers) |
+| `carbon_cost/db.py` | Connections (foreign keys always on), transactions, superseding a factor or rate |
+| `carbon_cost/ingest/ice.py` | Parses the ICE summary sheet |
+| `carbon_cost/ingest/densities.py` | Loads the densities a person has confirmed |
+| `carbon_cost/ingest/project.py` | Cost rates and CSV project import, with full validation |
+| `carbon_cost/engine.py` | Calculation, saved assessments, comparison, what-if swaps, reproduction |
+| `carbon_cost/sensitivity.py` | Single-change scenarios on a temporary copy of the database |
+| `carbon_cost/charts.py` | SVG charts drawn on the server; colour-vision-checked palette |
 | `carbon_cost/export.py` | Flat CSV export for Power BI |
-| `carbon_cost/engine.py` | Calculates carbon and cost, saves assessments, compares options, what-if material swaps |
-| `carbon_cost/ingest/project.py` | Loads the illustrative cost rates; imports a project from CSV files, checking everything first |
-| `data/reference/` | Small files written by hand for this project (committed) |
-| `docs/design_note.md` | Why the database is built the way it is |
-| `tests/` | Automated tests. They use made-up data only, never ICE data |
+| `carbon_cost/app/` | Web interface (Flask) |
+| `data/reference/` | Hand-written inputs: densities (with sources), cost rates, material aliases, the example project |
+| `docs/` | Design note, ER diagram, example assumptions, write-up, screenshots |
+| `tests/` | 194 automated tests, using made-up data only |
 
-## Set up
-
-Needs Python 3.9 or newer, with SQLite 3.37 or newer (the code checks this and says so if it is older). The tests pass on Python 3.9 and 3.10. On a Mac, upgrade pip inside the virtual environment first (`python -m pip install --upgrade pip`): the pip that comes with the Mac's Python 3.9 is too old for an editable install.
-
-```
-python -m venv .venv
-source .venv/bin/activate          # on Windows: .venv\Scripts\activate
-python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
-python -m pytest
-```
-
-The tests pass without the ICE file. Install with `-e` (editable): the
-tool keeps its database in `db/` and reads data from `data/` inside this
-folder.
-
-## Get the ICE data (you must do this yourself)
-
-The carbon factors come from the **ICE Database Educational V5.0 (Jun 2026)**
-by Circular Ecology Ltd. It is licensed for **educational use only** and
-**may not be redistributed, in whole or in part**. For that reason:
-
-- the ICE file is **not** in this repository;
-- nothing derived from it is in this repository either (no extracts, no database);
-- `.gitignore` blocks `data/raw/`, `data/staging/`, `db/`, and all `.xlsx` and `.db` files.
-
-To use the tool:
-
-1. Download the file from <https://circularecology.com/embodied-carbon-footprint-database.html>.
-2. Put it in `data/raw/` with its original name, `ICE_DB_Educational_V5.0_-_Jun_2026.xlsx`.
-3. Load the carbon factors, then the confirmed densities:
-
-   ```
-   python -m carbon_cost.ingest.ice
-   python -m carbon_cost.ingest.densities
-   python -m carbon_cost.ingest.project
-   ```
-
-   The last step loads the illustrative cost rates and imports the example
-   building (four design options). Then calculate every option:
-
-   ```
-   python -m carbon_cost.engine --as-of 2026-10-01
-   ```
-
-   Each run is saved as a finalised assessment that records the exact
-   factor and rate it used.
-
-4. Open the web interface:
-
-   ```
-   python -m carbon_cost.app
-   ```
-
-   then go to <http://127.0.0.1:5000>. From there you can run assessments,
-   see cost and carbon side by side by element, try a different material
-   (a what-if that saves nothing), compare two design options, see charts
-   of all options side by side, edit quantities and upload another project.
-
-5. Export for Power BI or Excel (one row per line, in long form, so totals
-   sum without double counting):
-
-   ```
-   python -m carbon_cost.export
-   ```
-
-   This writes `exports/carbon_cost_export.csv` (also downloadable from the
-   web pages). It contains values derived from ICE, so it is for your own
-   use: `exports/` is git-ignored and every row says whether its source may
-   be redistributed. Its assumptions are in
-   [`docs/example_assumptions.md`](docs/example_assumptions.md).
-
-   (After `pip install`, the same two steps are also available as
-   `carbon-cost-ingest-ice` and `carbon-cost-load-densities`.)
-
-The ingestion prints what it read, what it loaded and what it rejected,
-and writes these files to `data/staging/` so every decision can be checked
-by eye:
-
-| File | Contents |
-|---|---|
-| `ice_summary_raw.csv` | The summary sheet exactly as read |
-| `ice_parsed.csv` | Every factor that was accepted |
-| `ice_rejected.csv` | Every row that was not loaded, with the reason |
-| `ice_structure.csv` | Every heading and note, and how it was classified |
-| `density_candidates.csv` | Densities listed in the ICE profile sheets, for reference only. Never loaded, never committed. |
-
-Run it once per database. Factors are never overwritten, so a second run
-on the same database stops with a message. To reload, delete the file in
-`db/` and run it again.
-
-## Data sources
+## Data sources and licence
 
 | Data | Source | In this repository? |
 |---|---|---|
-| Embodied carbon factors (A1-A3) | ICE Database Educational V5.0, Circular Ecology Ltd | No. Licence forbids it. |
-| Densities | `data/reference/densities.csv`: standards and manufacturers' data sheets, cited row by row | Yes |
-| Cost rates | `data/reference/cost_rates.csv`: illustrative only, invented for this prototype, not commercial data | Yes |
+| Embodied carbon factors (A1-A3) | ICE Database Educational V5.0 (June 2026), Circular Ecology Ltd | **No.** Educational use only; may not be redistributed in whole or in part. Download your own copy. |
+| Densities | BS EN 1991-1-1, BS EN 14080 and manufacturers' data sheets, cited row by row in `data/reference/densities.csv` | Yes |
+| Cost rates | Illustrative, written for this prototype; not commercial data | Yes |
+| Element structure | RICS NRM1 (names and codes) | Yes |
 
 Credit: **ICE Database Educational V5.0, Circular Ecology Ltd**,
-<https://circularecology.com/embodied-carbon-footprint-database.html>
+<https://circularecology.com/embodied-carbon-footprint-database.html>.
+On 1 October 2026 the download page listed V5.0 as the latest version (a
+cell in the file that says "this version has expired" is a date formula).
+Every ICE factor is given `valid_from = 2026-06-01`, its release month; an
+assessment dated earlier stops with an error rather than using another
+factor.
 
-### Is V5.0 still the current version?
+Nothing derived from ICE is committed: `data/raw/`, `data/staging/`, `db/`
+and `exports/` are git-ignored, and the tests use made-up numbers.
 
-The summary sheet contains a cell that reads "This version has expired.
-Please download a new version". That cell is a date formula, not news of a
-newer release: on **1 October 2026** the ICE download page still listed
-V5.0 (June 2026) as the latest version (checked by the author).
+## Limitations
 
-### Convention: start date of the ICE V5.0 factors
-
-Every factor loaded from ICE V5.0 is given `valid_from = 2026-06-01`, the
-month the database was released. An assessment with an earlier "as of"
-date will stop with an error that names the material and this date. It
-will not fall back to any other factor.
-
-### Densities
-
-ICE gives most factors per kg, so a volume needs a density to become a
-mass. Each density in `data/reference/densities.csv` cites its own source
-(a standard or a manufacturer's data sheet). None is taken from the ICE
-file. A row is only loaded when its `confirmed` column says `yes`.
-
-## Limitations (so far)
-
-- **21 mortar, screed and admixture rows excluded because their unit is not stated in the source.**
-- One concrete row ("1:2.5:5" with average UK cement) is excluded because
-  its label and its ICE name disagree, and it is not possible to tell
-  which is wrong.
-- "A Single Brick" sits in a per-kg table but its ICE name describes one
-  brick. It is stored per brick (the unit named in its ICE name), and the
-  conflict is noted in the factor's comments.
-- The full list of limitations will be added when the tool is complete.
+- Product stage (A1-A3) only, for structure, envelope and partitions. No
+  transport, construction, use or end of life; no services or finishes.
+  Not comparable with whole-life benchmarks.
+- Generic factors, not product-specific EPDs. No wastage allowance.
+- Illustrative quantities and cost rates. Cost does not respond to a
+  material swap unless the item's rate is changed.
+- The ICE file leaves 21 mortar, screed and admixture rows without a stated
+  unit; they are excluded. One concrete row with a contradictory label is
+  excluded. "A Single Brick" is stored per brick, as its ICE name states.
+- Densities are not versioned (each run stores the density it used).
+- Python, SQLite and a local web server: a single-user prototype.
 
 ## Licence
 
-The code is released under the MIT licence (see `LICENSE`). The licence
-covers this repository only. It does not cover the ICE Database, which
-has its own terms (see above).
+The code is MIT-licensed (see `LICENSE`). That licence covers this
+repository only, not the ICE Database, which has its own terms.

@@ -75,3 +75,18 @@ def test_charts_page_and_csv_download(client):
     assert resp.mimetype == "text/csv" and "attachment" in resp.headers["Content-Disposition"]
     assert resp.get_data(as_text=True).startswith("project,design_option,assessment_id")
     assert client.get("/assessments/99/export.csv").status_code == 404
+
+
+def test_sensitivity_table_format():
+    from carbon_cost import sensitivity
+    md = sensitivity.as_markdown([{"scenario": "Base", "carbon_t": 712.7, "kg_m2": 237.6, "vs_a_pct": 0.0,
+                                   "cost_gbp": 1574080.0, "note": ""}])
+    assert md.splitlines()[2] == "| Base | 713 | 238 | +0% | £1,574,080 |"
+
+
+def test_sensitivity_needs_the_example_project(seeded, tmp_path):
+    from carbon_cost import db as D, sensitivity
+    path = tmp_path / "s.db"
+    D.init_db(path).close()
+    with pytest.raises(LookupError):
+        sensitivity.run(path, "2026-10-01")
