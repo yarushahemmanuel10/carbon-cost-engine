@@ -1,0 +1,26 @@
+# --- Licensed / generated data: must never be committed ---
+# The ICE Database is licensed for educational use only and may not be
+# redistributed, in whole or in part. Nothing derived from it is committed.
+data/raw/
+data/staging/
+db/
+*.xlsx
+*.xls
+*.db
+*.sqlite
+*.sqlite3
+
+# --- Python ---
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# --- Editor / OS ---
+.DS_Store
+.idea/
+.vscode/

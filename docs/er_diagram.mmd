@@ -1,0 +1,196 @@
+erDiagram
+    data_sources ||--o{ materials : "describes"
+    data_sources ||--o{ carbon_factors : "publishes"
+    data_sources ||--o{ biogenic_carbon : "publishes"
+    data_sources ||--o{ cost_rates : "publishes"
+
+    materials ||--o{ carbon_factors : "has, over time"
+    materials ||--o{ biogenic_carbon : "may store carbon"
+    carbon_factors |o--o| carbon_factors : "superseded_by"
+    biogenic_carbon |o--o| biogenic_carbon : "superseded_by"
+
+    cost_rate_definitions ||--o{ cost_rates : "priced, over time"
+    cost_rates |o--o| cost_rates : "superseded_by"
+
+    elements |o--o{ elements : "parent of"
+
+    projects ||--|{ project_versions : "has design options"
+    project_versions ||--o{ element_items : "contains"
+    elements ||--o{ element_items : "groups"
+    cost_rate_definitions ||--o{ element_items : "prices"
+
+    element_items ||--o{ item_components : "is made of"
+    materials ||--o{ item_components : "used in"
+    item_components |o--o{ item_components : "host of rebar"
+
+    project_versions ||--o{ assessments : "is calculated by"
+    assessments ||--o{ assessment_lines : "carbon lines"
+    assessments ||--o{ assessment_cost_lines : "cost lines"
+    carbon_factors ||--o{ assessment_lines : "exact factor used"
+    biogenic_carbon |o--o{ assessment_lines : "exact storage row used"
+    cost_rates ||--o{ assessment_cost_lines : "exact rate used"
+    elements ||--o{ assessment_lines : "rolled up to"
+    elements ||--o{ assessment_cost_lines : "rolled up to"
+    materials ||--o{ assessment_lines : "material used"
+    element_items |o--o{ assessment_lines : "from (link may be blank)"
+    item_components |o--o{ assessment_lines : "from (link may be blank)"
+    element_items |o--o{ assessment_cost_lines : "from (link may be blank)"
+
+    data_sources {
+        int id PK
+        text name
+        text publisher
+        text version
+        text licence
+        text attribution_text
+        text url
+        int redistributable "0 or 1"
+    }
+    materials {
+        int id PK
+        text canonical_name UK
+        text category
+        text subcategory_path
+        text name_in_source
+        int data_source_id FK
+        real density_kg_m3
+        text density_source
+        real mass_per_item_kg
+    }
+    carbon_factors {
+        int id PK
+        int material_id FK
+        real value
+        text unit "per kg, per m2 or per unit"
+        text declared_unit
+        text lifecycle_module "A1-A3 to D"
+        int data_source_id FK
+        text source_section_version
+        real dqi_score
+        text dqi_version
+        text comments
+        text valid_from
+        text valid_to
+        int superseded_by FK
+    }
+    biogenic_carbon {
+        int id PK
+        int material_id FK
+        real value_kgco2e_per_kg "zero or negative"
+        int data_source_id FK
+        text comments
+        text valid_from
+        text valid_to
+        int superseded_by FK
+    }
+    cost_rate_definitions {
+        int id PK
+        text ref UK
+        text description
+        text unit "m2, m3 or nr"
+    }
+    cost_rates {
+        int id PK
+        int definition_id FK
+        real rate_gbp
+        int data_source_id FK
+        int is_illustrative "0 or 1"
+        text price_base
+        text comments
+        text valid_from
+        text valid_to
+        int superseded_by FK
+    }
+    elements {
+        int id PK
+        text code UK
+        text name
+        int parent_id FK
+    }
+    projects {
+        int id PK
+        text name UK
+        text description
+        text created_at
+    }
+    project_versions {
+        int id PK
+        int project_id FK
+        text label
+        text description
+        real gia_m2
+        text created_at
+        int archived "0 or 1"
+    }
+    element_items {
+        int id PK
+        int project_version_id FK
+        int element_id FK
+        text description
+        real quantity
+        text unit "m2, m3 or nr"
+        int cost_rate_definition_id FK
+        text comment
+    }
+    item_components {
+        int id PK
+        int element_item_id FK
+        int material_id FK
+        text basis
+        real basis_value
+        int host_component_id FK
+        text comment
+    }
+    assessments {
+        int id PK
+        int project_version_id FK
+        text as_of_date
+        text run_at
+        real gia_m2
+        text notes
+        text finalised_at "empty = draft"
+    }
+    assessment_lines {
+        int id PK
+        int assessment_id FK
+        int element_id FK
+        int element_item_id FK
+        int item_component_id FK
+        text item_description
+        real item_quantity
+        text item_unit
+        int material_id FK
+        text basis
+        real basis_value
+        real volume_m3
+        real density_kg_m3_used
+        real mass_per_item_kg_used
+        real mass_kg
+        real factor_quantity
+        text factor_unit
+        text lifecycle_module
+        int carbon_factor_id FK
+        real carbon_kgco2e
+        int biogenic_carbon_id FK
+        real biogenic_kgco2e
+    }
+    assessment_cost_lines {
+        int id PK
+        int assessment_id FK
+        int element_id FK
+        int element_item_id FK
+        text item_description
+        real item_quantity
+        text item_unit
+        int cost_rate_id FK
+        real cost_gbp
+    }
+    benchmarks {
+        int id PK
+        text name
+        real value_kgco2e_m2
+        text building_type
+        text lifecycle_scope
+        text source
+        int year
+    }
