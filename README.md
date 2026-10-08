@@ -7,9 +7,9 @@ This is an independent personal project. It is not affiliated with any
 company, and it is not a commercial tool.
 
 > **Status: work in progress.** Built so far: the database (Part 1), the
-> ICE ingestion (Part 2) and the project import with an example building
-> (Part 3). Not built yet: the calculation engine, the web pages, charts
-> and the write-up. This README will be completed at the end; for now it
+> ICE ingestion (Part 2), the project import with an example building
+> (Part 3) and the calculation engine (Part 4). Not built yet: the web
+> pages, charts and the write-up. This README will be completed at the end; for now it
 > covers what exists.
 
 ## What is here
@@ -20,6 +20,7 @@ company, and it is not a commercial tool.
 | `carbon_cost/db.py` | Opens the database (foreign keys always on), transactions, superseding a factor |
 | `carbon_cost/ingest/ice.py` | Reads the ICE summary sheet and loads the carbon factors |
 | `carbon_cost/ingest/densities.py` | Lists density candidates; loads the densities a person has confirmed |
+| `carbon_cost/engine.py` | Calculates carbon and cost, saves assessments, compares options, what-if material swaps |
 | `carbon_cost/ingest/project.py` | Loads the illustrative cost rates; imports a project from CSV files, checking everything first |
 | `data/reference/` | Small files written by hand for this project (committed) |
 | `docs/design_note.md` | Why the database is built the way it is |
@@ -63,7 +64,14 @@ To use the tool:
    ```
 
    The last step loads the illustrative cost rates and imports the example
-   building (four design options). Its assumptions are in
+   building (four design options). Then calculate every option:
+
+   ```
+   python -m carbon_cost.engine --as-of 2026-10-01
+   ```
+
+   Each run is saved as a finalised assessment that records the exact
+   factor and rate it used. Its assumptions are in
    [`docs/example_assumptions.md`](docs/example_assumptions.md).
 
    (After `pip install`, the same two steps are also available as

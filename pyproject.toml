@@ -21,6 +21,7 @@ dev = ["pytest>=8"]
 carbon-cost-ingest-ice = "carbon_cost.ingest.ice:main"
 carbon-cost-load-densities = "carbon_cost.ingest.densities:main"
 carbon-cost-import-project = "carbon_cost.ingest.project:main"
+carbon-cost-assess = "carbon_cost.engine:main"
 
 [tool.setuptools.packages.find]
 include = ["carbon_cost*"]
