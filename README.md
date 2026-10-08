@@ -8,8 +8,8 @@ company, and it is not a commercial tool.
 
 > **Status: work in progress.** Built so far: the database (Part 1), the
 > ICE ingestion (Part 2), the project import with an example building
-> (Part 3) and the calculation engine (Part 4). Not built yet: the web
-> pages, charts and the write-up. This README will be completed at the end; for now it
+> (Part 3), the calculation engine (Part 4) and the web interface
+> (Part 5). Not built yet: charts, the Power BI export and the write-up. This README will be completed at the end; for now it
 > covers what exists.
 
 ## What is here
@@ -20,6 +20,7 @@ company, and it is not a commercial tool.
 | `carbon_cost/db.py` | Opens the database (foreign keys always on), transactions, superseding a factor |
 | `carbon_cost/ingest/ice.py` | Reads the ICE summary sheet and loads the carbon factors |
 | `carbon_cost/ingest/densities.py` | Lists density candidates; loads the densities a person has confirmed |
+| `carbon_cost/app/` | The web interface (Flask): results, what-if swaps, comparison, upload |
 | `carbon_cost/engine.py` | Calculates carbon and cost, saves assessments, compares options, what-if material swaps |
 | `carbon_cost/ingest/project.py` | Loads the illustrative cost rates; imports a project from CSV files, checking everything first |
 | `data/reference/` | Small files written by hand for this project (committed) |
@@ -71,7 +72,18 @@ To use the tool:
    ```
 
    Each run is saved as a finalised assessment that records the exact
-   factor and rate it used. Its assumptions are in
+   factor and rate it used.
+
+4. Open the web interface:
+
+   ```
+   python -m carbon_cost.app
+   ```
+
+   then go to <http://127.0.0.1:5000>. From there you can run assessments,
+   see cost and carbon side by side by element, try a different material
+   (a what-if that saves nothing), compare two design options, edit
+   quantities and upload another project. Its assumptions are in
    [`docs/example_assumptions.md`](docs/example_assumptions.md).
 
    (After `pip install`, the same two steps are also available as

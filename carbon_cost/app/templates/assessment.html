@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ r.version }}: results{% endblock %}
+{% block body %}
+<p class="note"><a href="{{ url_for('index') }}">Projects</a> / {{ r.project }} / <a href="{{ url_for('version', vid=r.version_id) }}">{{ r.version }}</a></p>
+<h1>{{ r.version }}</h1>
+<p class="sub">Assessment #{{ r.assessment_id }} · factors and rates valid on {{ r.as_of_date }} · finalised {{ r.finalised_at }} · GIA {{ r.gia_m2|num(0) }} m²</p>
+<div class="kpis">
+<div class="kpi"><small>Embodied carbon, A1-A3</small><b class="carbon">{{ r.total_carbon_kgco2e|t }} tCO₂e</b></div>
+<div class="kpi"><small>Carbon intensity</small><b class="carbon">{{ r.carbon_kgco2e_per_m2|num }} kgCO₂e/m²</b></div>
+<div class="kpi"><small>Cost{% if r.cost_is_illustrative %} (illustrative rates){% endif %}</small><b class="cost">{{ r.total_cost_gbp|gbp }}</b></div>
+<div class="kpi"><small>Cost per m² GIA</small><b class="cost">{{ r.cost_gbp_per_m2|gbp }}</b></div>
+{% if r.total_biogenic_kgco2e %}<div class="kpi"><small>Biogenic carbon stored (not subtracted)</small><b>{{ r.total_biogenic_kgco2e|t }} tCO₂e</b></div>{% endif %}
+</div>
+{% if r.notes %}<div class="warn">{{ r.notes }}</div>{% endif %}
+
+<h2>Cost and carbon by element</h2>
+<table>
+<tr><th>NRM1</th><th>Element</th><th class="n">tCO₂e</th><th class="n">Share</th><th style="width:18%"></th><th class="n">kgCO₂e/m²</th><th class="n">Cost</th><th class="n">£/m²</th></tr>
+{% set top = r.elements|selectattr('level','equalto',2)|map(attribute='carbon_kgco2e')|max %}
+{% for e in r.elements %}
+<tr class="l{{ e.level }}"><td>{{ e.code }}</td><td>{{ e.name }}</td>
+<td class="n carbon">{{ e.carbon_kgco2e|t }}</td><td class="n">{{ e.carbon_share|pct }}</td>
+<td>{% if e.level == 2 and top %}<div class="bar" style="width:{{ (100 * e.carbon_kgco2e / top)|round(1) }}%"></div>{% endif %}</td>
+<td class="n carbon">{{ e.carbon_kgco2e_per_m2|num }}</td><td class="n cost">{{ e.cost_gbp|gbp }}</td><td class="n cost">{{ e.cost_gbp_per_m2|gbp }}</td></tr>
+{% endfor %}
+<tr class="total"><td></td><td>Total</td><td class="n carbon">{{ r.total_carbon_kgco2e|t }}</td><td></td><td></td>
+<td class="n carbon">{{ r.carbon_kgco2e_per_m2|num }}</td><td class="n cost">{{ r.total_cost_gbp|gbp }}</td><td class="n cost">{{ r.cost_gbp_per_m2|gbp }}</td></tr>
+</table>
+
+{% if swap %}
+<h2 id="whatif">What-if (not saved)</h2>
+<div class="card">
+<p>Replace <b title="{{ swap.from }}">{{ swap.from|short }}</b> with <b title="{{ swap.to }}">{{ swap.to|short }}</b>:</p>
+<p>That material: {{ swap.component_before_kgco2e|t }} → {{ swap.component_after_kgco2e|t }} tCO₂e.
+Option total: {{ swap.total_before_kgco2e|t }} → <b>{{ swap.total_after_kgco2e|t }} tCO₂e</b>
+(<span class="{{ 'down' if swap.delta_kgco2e < 0 else 'up' }}">{{ swap.delta_kgco2e|signed_t }} t, {{ swap.delta_pct|pct(true) }}</span>).</p>
+<p class="note">{{ swap.cost_note }} Calculated on the option's current quantities, with factors valid on {{ r.as_of_date }}.</p>
+</div>
+{% endif %}
+
+<h2>Every line, with the exact factor used</h2>
+<table>
+<tr><th>NRM1</th><th>Item / material</th><th class="n">Quantity</th><th class="n">Mass kg</th><th class="n">Factor</th><th class="n">tCO₂e</th><th>What-if: swap material</th></tr>
+{% for l in r.lines %}
+<tr><td>{{ l.code }}</td><td>{{ l.item_description }}<div class="mat note" title="{{ l.material }}">{{ l.material|short }} · {{ l.basis }} {{ l.basis_value }}</div></td>
+<td class="n">{{ l.factor_quantity|num(0) }} {{ 'kg' if l.factor_unit == 'kgCO2e/kg' else ('m²' if l.factor_unit == 'kgCO2e/m2' else 'nr') }}</td>
+<td class="n">{{ l.mass_kg|num(0) }}</td><td class="n">{{ l.factor_value|num(3) }} <span class="note">{{ l.factor_unit }}</span></td>
+<td class="n carbon">{{ l.carbon_kgco2e|t }}{% if l.biogenic_kgco2e %}<div class="note">stored {{ l.biogenic_kgco2e|t }}</div>{% endif %}</td>
+<td>{% set opts = options.get(l.item_component_id) %}{% if opts %}
+<form class="inline" method="get" action="{{ url_for('assessment', aid=r.assessment_id) }}#whatif"><input type="hidden" name="swap_component" value="{{ l.item_component_id }}">
+<select name="swap_material">{% for o in opts %}<option value="{{ o.id }}" title="{{ o.canonical_name }}">{{ o.canonical_name|short }}</option>{% endfor %}</select>
+<button class="ghost">Try</button></form>{% else %}<span class="note">no alternative</span>{% endif %}</td></tr>
+{% endfor %}
+</table>
+
+<p class="note">Reproduced from the stored rows: {{ 'matches' if reproduced.matches else 'DOES NOT MATCH' }}
+({{ reproduced.recalculated_carbon_kgco2e|t }} tCO₂e, {{ reproduced.recalculated_cost_gbp|gbp }}).</p>
+{% if others %}
+<form class="inline" action="{{ url_for('compare') }}"><input type="hidden" name="a" value="{{ r.assessment_id }}">
+Compare with <select name="b">{% for o in others %}<option value="{{ o.id }}">#{{ o.id }} {{ o.label }} ({{ o.as_of_date }})</option>{% endfor %}</select><button>Compare</button></form>
+{% endif %}
+
+<div class="attrib">
+<b>Scope:</b> product stage (A1-A3) only, for the elements listed; generic factors, not product EPDs; no wastage.
+Do not compare with whole-life benchmarks.<br>
+<b>Sources:</b>{% for s in r.sources %} {{ s.attribution_text.rstrip('.') }}{% if s.url %} (<a href="{{ s.url }}">{{ s.url }}</a>){% endif %}.{% endfor %}
+</div>
+{% endblock %}

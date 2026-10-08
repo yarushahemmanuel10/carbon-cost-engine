@@ -2,4 +2,4 @@
 openpyxl>=3.1
 # Tests
 pytest>=8
-# Added in later parts when they are first used: pandas, flask
+flask>=3.0

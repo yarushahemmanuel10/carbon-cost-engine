@@ -12,6 +12,7 @@ license-files = ["LICENSE"]
 requires-python = ">=3.11"
 dependencies = [
     "openpyxl>=3.1",
+    "flask>=3.0",
 ]
 
 [project.optional-dependencies]
@@ -22,12 +23,13 @@ carbon-cost-ingest-ice = "carbon_cost.ingest.ice:main"
 carbon-cost-load-densities = "carbon_cost.ingest.densities:main"
 carbon-cost-import-project = "carbon_cost.ingest.project:main"
 carbon-cost-assess = "carbon_cost.engine:main"
+carbon-cost-app = "carbon_cost.app.__main__:main"
 
 [tool.setuptools.packages.find]
 include = ["carbon_cost*"]
 
 [tool.setuptools.package-data]
-carbon_cost = ["*.sql"]
+carbon_cost = ["*.sql", "app/templates/*.html", "app/static/*.css"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

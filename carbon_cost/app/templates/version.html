@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ v.label }}{% endblock %}
+{% block body %}
+<p class="note"><a href="{{ url_for('index') }}">Projects</a> / {{ v.project }}</p>
+<h1>{{ v.label }}</h1>
+<p class="sub">{{ v.description or '' }} · GIA {{ v.gia_m2|num(0) }} m²</p>
+<form class="inline card" method="post" action="{{ url_for('assess', vid=v.id) }}">
+Run an assessment as of <input type="date" name="as_of" value="{{ today }}"><button>Run</button>
+<span class="note">Edits below only affect new runs. Saved assessments never change.</span></form>
+{% for x in items %}{% set it = x.it %}
+<div class="card">
+<h3 style="margin-top:0">{{ it.code }} {{ it.element }} · {{ it.description }}</h3>
+<form class="inline" method="post" action="{{ url_for('edit_item', iid=it.id) }}">
+Quantity <input type="number" step="any" min="0" name="quantity" value="{{ it.quantity|num(2)|replace(',', '') }}"> {{ it.unit }}
+<button class="ghost">Save</button></form>
+<span class="note"> · priced by <b>{{ it.ref }}</b>: {{ it.rate_desc }}</span>
+{% if it.comment %}<p class="note">{{ it.comment }}</p>{% endif %}
+<table style="margin-top:8px">
+<tr><th>Material</th><th>Basis</th><th>Value and material</th></tr>
+{% for y in x.comps %}{% set c = y.c %}
+<tr><td class="mat" title="{{ c.canonical_name }}">{{ c.canonical_name|short }}{% if c.density_kg_m3 %} <span class="tag">{{ c.density_kg_m3|num(0) }} kg/m³</span>{% endif %}
+{% if c.comment %}<div class="note">{{ c.comment }}</div>{% endif %}</td>
+<td>{{ c.basis }}{% if c.host_component_id %} <span class="tag">in host</span>{% endif %}</td>
+<td><form class="inline" method="post" action="{{ url_for('edit_component', cid=c.id) }}">
+<input type="number" step="any" min="0" name="basis_value" value="{{ c.basis_value }}">
+<select name="material_id"><option value="{{ c.material_id }}" selected>(keep) {{ c.canonical_name|short }}</option>
+{% for o in y.options %}<option value="{{ o.id }}" title="{{ o.canonical_name }}">{{ o.canonical_name|short }}</option>{% endfor %}</select>
+<button class="ghost">Save</button></form></td></tr>
+{% endfor %}
+</table>
+</div>
+{% endfor %}
+{% endblock %}

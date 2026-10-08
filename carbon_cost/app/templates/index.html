@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Projects and design options</h1>
+<p class="sub">Each design option is a list of quantities. One run gives both its cost and its embodied carbon, using the factors and rates valid on the chosen date.</p>
+{% for pr in projects %}
+<div class="card">
+<h2 style="margin-top:0">{{ pr.p.name }}</h2>
+{% if pr.p.description %}<p class="note">{{ pr.p.description }}</p>{% endif %}
+<table>
+<tr><th>Design option</th><th class="n">GIA m²</th><th class="n">Items</th><th class="n">Latest tCO₂e</th><th class="n">kgCO₂e/m²</th><th class="n">Cost</th><th>Run an assessment</th></tr>
+{% for v in pr.versions %}{% set r = latest.get(v.id) %}
+<tr{% if v.archived %} style="opacity:.5"{% endif %}>
+<td><a href="{{ url_for('version', vid=v.id) }}">{{ v.label }}</a>{% if v.archived %} <span class="tag">archived</span>{% endif %}
+{% if v.description %}<div class="note">{{ v.description }}</div>{% endif %}</td>
+<td class="n">{{ v.gia_m2|num(0) }}</td><td class="n">{{ v.n_items }}</td>
+{% if r %}<td class="n carbon"><a href="{{ url_for('assessment', aid=r.assessment_id) }}">{{ r.total_carbon_kgco2e|t }}</a></td>
+<td class="n carbon">{{ r.carbon_kgco2e_per_m2|num }}</td><td class="n cost">{{ r.total_cost_gbp|gbp }}</td>
+{% else %}<td class="n note" colspan="3">not assessed yet</td>{% endif %}
+<td><form class="inline" method="post" action="{{ url_for('assess', vid=v.id) }}">
+<input type="date" name="as_of" value="{{ today }}" aria-label="as-of date"><button>Run</button></form>
+<form class="inline" method="post" action="{{ url_for('archive', vid=v.id) }}"><button class="ghost">{{ 'Restore' if v.archived else 'Archive' }}</button></form></td>
+</tr>{% endfor %}
+</table>
+</div>
+{% else %}<p>No projects yet. Upload one below.</p>{% endfor %}
+
+{% if assessments|length > 1 %}
+<h2>Compare two assessments</h2>
+<form class="card inline" action="{{ url_for('compare') }}" method="get">
+<label>A <select name="a">{% for a in assessments %}<option value="{{ a.id }}">#{{ a.id }} {{ a.label }} ({{ a.as_of_date }})</option>{% endfor %}</select></label>
+<label>B <select name="b">{% for a in assessments %}<option value="{{ a.id }}" {% if loop.index == 2 %}selected{% endif %}>#{{ a.id }} {{ a.label }} ({{ a.as_of_date }})</option>{% endfor %}</select></label>
+<button>Compare</button></form>
+{% endif %}
+
+<h2>Upload a project</h2>
+<div class="card">
+<p class="note">Select <b>versions.csv</b> and every items file it names, together. Each row of an items file is one material of one item (the item columns repeat).
+The full layout is in the README. Everything is checked first; if anything is wrong, nothing is imported and every problem is listed.</p>
+<form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data" class="inline">
+<input type="file" name="files" accept=".csv" multiple><button>Import</button></form>
+</div>
+{% endblock %}

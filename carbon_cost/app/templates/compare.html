@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Compare{% endblock %}
+{% block body %}
+<p class="note"><a href="{{ url_for('index') }}">Projects</a></p>
+<h1>{{ c.b.version }} compared with {{ c.a.version }}</h1>
+<p class="sub">B minus A. Assessments #{{ c.a.assessment_id }} (as of {{ c.a.as_of_date }}) and #{{ c.b.assessment_id }} (as of {{ c.b.as_of_date }}).</p>
+<div class="kpis">
+<div class="kpi"><small>Carbon change</small><b class="{{ 'down' if c.carbon_delta_kgco2e < 0 else 'up' }}">{{ c.carbon_delta_kgco2e|signed_t }} tCO₂e</b><small>{{ c.carbon_delta_pct|pct(true) }}</small></div>
+<div class="kpi"><small>Cost change{% if c.a.cost_is_illustrative %} (illustrative){% endif %}</small><b class="{{ 'down' if c.cost_delta_gbp <= 0 else 'up' }}">{{ c.cost_delta_gbp|signed_gbp }}</b><small>{{ c.cost_delta_pct|pct(true) }}</small></div>
+<div class="kpi"><small>{{ c.a.version }}</small><b class="carbon">{{ c.a.carbon_kgco2e_per_m2|num }}</b><small>kgCO₂e/m² · {{ c.a.cost_gbp_per_m2|gbp }}/m²</small></div>
+<div class="kpi"><small>{{ c.b.version }}</small><b class="carbon">{{ c.b.carbon_kgco2e_per_m2|num }}</b><small>kgCO₂e/m² · {{ c.b.cost_gbp_per_m2|gbp }}/m²</small></div>
+</div>
+{% if c.a.total_biogenic_kgco2e or c.b.total_biogenic_kgco2e %}
+<p class="note">Biogenic carbon stored, reported separately and not subtracted: A {{ c.a.total_biogenic_kgco2e|t }} t, B {{ c.b.total_biogenic_kgco2e|t }} t.</p>{% endif %}
+<table>
+<tr><th>NRM1</th><th>Element</th><th class="n">A tCO₂e</th><th class="n">B tCO₂e</th><th class="n">Δ tCO₂e</th><th class="n">A cost</th><th class="n">B cost</th><th class="n">Δ cost</th></tr>
+{% for e in c.elements %}
+<tr class="l{{ e.level }}"><td>{{ e.code }}</td><td>{{ e.name }}</td>
+<td class="n">{{ e.carbon_a|t }}</td><td class="n">{{ e.carbon_b|t }}</td>
+<td class="n {{ 'down' if e.carbon_delta < 0 else ('up' if e.carbon_delta > 0 else '') }}">{{ e.carbon_delta|signed_t }}</td>
+<td class="n">{{ e.cost_a|gbp }}</td><td class="n">{{ e.cost_b|gbp }}</td>
+<td class="n {{ 'down' if e.cost_delta < 0 else ('up' if e.cost_delta > 0 else '') }}">{{ e.cost_delta|signed_gbp }}</td></tr>
+{% endfor %}
+</table>
+<div class="attrib"><b>Sources:</b>{% for s in c.a.sources %} {{ s.attribution_text.rstrip('.') }}{% if s.url %} (<a href="{{ s.url }}">{{ s.url }}</a>){% endif %}.{% endfor %}</div>
+{% endblock %}
