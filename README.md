@@ -6,10 +6,11 @@ so that one list of quantities gives both a cost and a carbon figure.
 This is an independent personal project. It is not affiliated with any
 company, and it is not a commercial tool.
 
-> **Status: work in progress.** Built so far: the database (Part 1) and the
-> ICE ingestion (Part 2). Not built yet: project import, the calculation
-> engine, the web pages, charts and the write-up. This README will be
-> completed at the end; for now it covers what exists.
+> **Status: work in progress.** Built so far: the database (Part 1), the
+> ICE ingestion (Part 2) and the project import with an example building
+> (Part 3). Not built yet: the calculation engine, the web pages, charts
+> and the write-up. This README will be completed at the end; for now it
+> covers what exists.
 
 ## What is here
 
@@ -19,6 +20,7 @@ company, and it is not a commercial tool.
 | `carbon_cost/db.py` | Opens the database (foreign keys always on), transactions, superseding a factor |
 | `carbon_cost/ingest/ice.py` | Reads the ICE summary sheet and loads the carbon factors |
 | `carbon_cost/ingest/densities.py` | Lists density candidates; loads the densities a person has confirmed |
+| `carbon_cost/ingest/project.py` | Loads the illustrative cost rates; imports a project from CSV files, checking everything first |
 | `data/reference/` | Small files written by hand for this project (committed) |
 | `docs/design_note.md` | Why the database is built the way it is |
 | `tests/` | Automated tests. They use made-up data only, never ICE data |
@@ -57,7 +59,12 @@ To use the tool:
    ```
    python -m carbon_cost.ingest.ice
    python -m carbon_cost.ingest.densities
+   python -m carbon_cost.ingest.project
    ```
+
+   The last step loads the illustrative cost rates and imports the example
+   building (four design options). Its assumptions are in
+   [`docs/example_assumptions.md`](docs/example_assumptions.md).
 
    (After `pip install`, the same two steps are also available as
    `carbon-cost-ingest-ice` and `carbon-cost-load-densities`.)
@@ -84,7 +91,7 @@ on the same database stops with a message. To reload, delete the file in
 |---|---|---|
 | Embodied carbon factors (A1-A3) | ICE Database Educational V5.0, Circular Ecology Ltd | No. Licence forbids it. |
 | Densities | `data/reference/densities.csv`: standards and manufacturers' data sheets, cited row by row | Yes |
-| Cost rates | Illustrative only, not commercial data (to be added) | Yes |
+| Cost rates | `data/reference/cost_rates.csv`: illustrative only, invented for this prototype, not commercial data | Yes |
 
 Credit: **ICE Database Educational V5.0, Circular Ecology Ltd**,
 <https://circularecology.com/embodied-carbon-footprint-database.html>

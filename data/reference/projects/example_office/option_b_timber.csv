@@ -1,0 +1,17 @@
+item,nrm1_code,description,quantity,unit,cost_rate_ref,component,material,basis,basis_value,host,comment
+GF-SLAB,1.1,"Ground-bearing slab, 250 mm RC",1000,m2,GF-SLAB,concrete,CONC-32/40-UKAVG,thickness_m,0.25,,Same as option A
+GF-SLAB,1.1,"Ground-bearing slab, 250 mm RC",1000,m2,GF-SLAB,rebar,REBAR-WORLD,kg_per_m3,50,concrete,Same as option A
+PADS,1.1,"Pad foundations, RC",150,m3,PAD-FDN,concrete,CONC-32/40-UKAVG,volume_ratio,1.0,,Kept the same as option A (conservative: a lighter timber frame could need smaller pads)
+PADS,1.1,"Pad foundations, RC",150,m3,PAD-FDN,rebar,REBAR-WORLD,kg_per_m3,80,,Same as option A
+FRAME,2.1,"Glulam columns and beams, GL24h",90,m3,GLULAM-FRAME,glulam,GLULAM-GL24H,volume_ratio,1.0,,"Columns and beams, about 0.03 m3 per m2 GIA"
+UPPER-FLOORS,2.2,"Upper floors, 200 mm CLT with 50 mm concrete topping",2000,m2,CLT-FLOOR,clt,CLT,thickness_m,0.2,,5-layer CLT panels
+UPPER-FLOORS,2.2,"Upper floors, 200 mm CLT with 50 mm concrete topping",2000,m2,CLT-FLOOR,topping,CONC-20/25-UKAVG,thickness_m,0.05,,50 mm unreinforced topping for acoustics and mass; included so timber is not flattered
+ROOF,2.3,"Roof, 160 mm CLT with 150 mm PIR",1000,m2,CLT-ROOF,clt,CLT,thickness_m,0.16,,
+ROOF,2.3,"Roof, 160 mm CLT with 150 mm PIR",1000,m2,CLT-ROOF,insulation,PIR,thickness_m,0.15,,Same insulation as option A
+EXT-WALL,2.5,"External cavity wall, brick / mineral wool / block",819,m2,EXT-WALL,brick,BRICK-SKIN-102,area_ratio,1.0,,"Facade 130 m perimeter x 10.5 m = 1365 m2, minus 40% glazing = 819 m2"
+EXT-WALL,2.5,"External cavity wall, brick / mineral wool / block",819,m2,EXT-WALL,insulation,MINERAL-WOOL,thickness_m,0.15,,150 mm full-fill cavity insulation
+EXT-WALL,2.5,"External cavity wall, brick / mineral wool / block",819,m2,EXT-WALL,block,BLOCK-MD-100,area_ratio,1.0,,100 mm medium density block inner leaf
+EXT-WALL,2.5,"External cavity wall, brick / mineral wool / block",819,m2,EXT-WALL,lining,PLASTERBOARD,thickness_m,0.0125,,One layer of 12.5 mm plasterboard dry lining
+WINDOWS,2.6,"Windows, double glazed",546,m2,GLAZING,glass,GLAZING-DG-8MM,area_ratio,1.0,,"40% of 1365 m2 facade; glass only, frames excluded"
+PARTITIONS,2.7,"Internal partitions, plasterboard on metal studs",1500,m2,PARTITION,boards,PLASTERBOARD,thickness_m,0.05,,4 boards x 12.5 mm (two each side); 0.5 m2 of partition per m2 GIA
+PARTITIONS,2.7,"Internal partitions, plasterboard on metal studs",1500,m2,PARTITION,insulation,MINERAL-WOOL,thickness_m,0.05,,50 mm acoustic insulation; steel studs excluded

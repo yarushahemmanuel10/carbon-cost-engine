@@ -1,0 +1,5 @@
+project_name,project_description,version_label,version_description,gia_m2,items_file
+Example office,"Illustrative 3-storey office, 40 m x 25 m footprint, 3000 m2 GIA. Quantities are estimates for a typical building, not from a real project.",A - concrete frame,Reinforced concrete flat slab and columns; base case,3000,option_a_concrete.csv
+Example office,"Illustrative 3-storey office, 40 m x 25 m footprint, 3000 m2 GIA. Quantities are estimates for a typical building, not from a real project.","A2 - concrete, 50% GGBS",Option A with 50% GGBS cement replacement in all structural concrete,3000,option_a2_ggbs.csv
+Example office,"Illustrative 3-storey office, 40 m x 25 m footprint, 3000 m2 GIA. Quantities are estimates for a typical building, not from a real project.","A3 - concrete, EAF rebar",Option A with EAF-route (recycled scrap) rebar instead of world average,3000,option_a3_eaf_rebar.csv
+Example office,"Illustrative 3-storey office, 40 m x 25 m footprint, 3000 m2 GIA. Quantities are estimates for a typical building, not from a real project.",B - timber frame,"Glulam frame, CLT floors with concrete topping, CLT roof",3000,option_b_timber.csv

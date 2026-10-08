@@ -1,0 +1,14 @@
+alias,canonical_name,note
+CONC-32/40-UKAVG,Concrete > In-Situ Concrete > By Strength Class > 32/40 MPa,"Base case concrete: C32/40 with average UK cement (the UK cement mix, which already includes some replacement)"
+CONC-32/40-GGBS50,Concrete > In-Situ Concrete > By Strength Class > % Cement Replacement - Blast Furnace Slag > 50% > 32/40 (32/40 MPa),Sensitivity: C32/40 with 50% GGBS cement replacement
+CONC-20/25-UKAVG,Concrete > In-Situ Concrete > By Strength Class > 20/25 MPa,Unreinforced 50 mm topping on CLT floors
+REBAR-WORLD,"Steel > worldsteel Data - World Average - See material profile (and Annex on recycling methods) for usage guide and for data on recycled steel > Steel, Rebar","Base case rebar: worldsteel world average, all production routes"
+REBAR-EAF,"Steel > Calculated steel data - these datapoints are average of datapoints collected (not worldsteel data) > Steel rebar, recycled, Europe EAF mid range",Sensitivity: rebar made by the electric arc furnace (EAF) route from recycled scrap. ICE warns this is NOT representative of European rebar in general.
+BRICK-SKIN-102,"Bricks > Clay brick walls - per m2 of wall including mortar, not including waste > Single skin walls - 102.5mm thick > with Mortar (1:1:6 Cement:Lime:Sand mix) (Using CEM I cement)","Facing brick outer leaf, per m2 of wall including mortar"
+BLOCK-MD-100,"Concrete > Precast Concrete > Concrete block walls - per m2 of wall including mortar, not including waste > With medium density solid blocks > 100 mm thickness wall","Inner leaf, per m2 of wall including mortar"
+MINERAL-WOOL,"Insulation > Insulation, Mineral Wool",Cavity and partition insulation
+PIR,"Insulation > Insulation, Polyisocyanurate (PIR)",Flat roof insulation boards
+PLASTERBOARD,"Plaster > Plaster, Plasterboard",Standard 12.5 mm board
+GLAZING-DG-8MM,"Glass > Glazing by thickness of glass - Per m2 > Double glazing - no frame > 8 mm of glass, ex cavity and ex frame","Double glazing, 4 mm + 4 mm glass; frames and spacers are NOT included"
+GLULAM-GL24H,"Timber > Timber, Glulam",Glulam GL24h columns and beams
+CLT,"Timber > Timber, CLT",Cross-laminated timber panels

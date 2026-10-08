@@ -1,0 +1,19 @@
+item,nrm1_code,description,quantity,unit,cost_rate_ref,component,material,basis,basis_value,host,comment
+GF-SLAB,1.1,"Ground-bearing slab, 250 mm RC",1000,m2,GF-SLAB,concrete,CONC-32/40-UKAVG,thickness_m,0.25,,"Ground floor = footprint, 40 m x 25 m"
+GF-SLAB,1.1,"Ground-bearing slab, 250 mm RC",1000,m2,GF-SLAB,rebar,REBAR-WORLD,kg_per_m3,50,concrete,"Light mesh reinforcement, 50 kg per m3 of slab"
+PADS,1.1,"Pad foundations, RC",150,m3,PAD-FDN,concrete,CONC-32/40-UKAVG,volume_ratio,1.0,,"30 pads, 2.5 x 2.5 x 0.8 m = 5 m3 each"
+PADS,1.1,"Pad foundations, RC",150,m3,PAD-FDN,rebar,REBAR-WORLD,kg_per_m3,80,,80 kg rebar per m3 of foundation
+COLUMNS,2.1,"RC columns, 400 x 400 mm",50.4,m3,RC-COL,concrete,CONC-32/40-UKAVG,volume_ratio,1.0,,30 columns x 3 storeys x 0.4 x 0.4 x 3.5 m
+COLUMNS,2.1,"RC columns, 400 x 400 mm",50.4,m3,RC-COL,rebar,REBAR-WORLD,kg_per_m3,200,,Columns are heavily reinforced: 200 kg per m3
+UPPER-FLOORS,2.2,"Upper floors, 275 mm RC flat slab",2000,m2,RC-FLAT,concrete,CONC-32/40-UKAVG,thickness_m,0.275,,"First and second floors, 2 x 1000 m2; flat slab, no downstand beams"
+UPPER-FLOORS,2.2,"Upper floors, 275 mm RC flat slab",2000,m2,RC-FLAT,rebar,REBAR-WORLD,kg_per_m3,110,concrete,"110 kg per m3, typical for a flat slab"
+ROOF,2.3,"Roof, 250 mm RC slab with 150 mm PIR",1000,m2,RC-ROOF,concrete,CONC-32/40-UKAVG,thickness_m,0.25,,Flat roof = footprint
+ROOF,2.3,"Roof, 250 mm RC slab with 150 mm PIR",1000,m2,RC-ROOF,rebar,REBAR-WORLD,kg_per_m3,100,concrete,100 kg per m3
+ROOF,2.3,"Roof, 250 mm RC slab with 150 mm PIR",1000,m2,RC-ROOF,insulation,PIR,thickness_m,0.15,,150 mm PIR boards; membrane and vapour control layer not included
+EXT-WALL,2.5,"External cavity wall, brick / mineral wool / block",819,m2,EXT-WALL,brick,BRICK-SKIN-102,area_ratio,1.0,,"Facade 130 m perimeter x 10.5 m = 1365 m2, minus 40% glazing = 819 m2"
+EXT-WALL,2.5,"External cavity wall, brick / mineral wool / block",819,m2,EXT-WALL,insulation,MINERAL-WOOL,thickness_m,0.15,,150 mm full-fill cavity insulation
+EXT-WALL,2.5,"External cavity wall, brick / mineral wool / block",819,m2,EXT-WALL,block,BLOCK-MD-100,area_ratio,1.0,,100 mm medium density block inner leaf
+EXT-WALL,2.5,"External cavity wall, brick / mineral wool / block",819,m2,EXT-WALL,lining,PLASTERBOARD,thickness_m,0.0125,,One layer of 12.5 mm plasterboard dry lining
+WINDOWS,2.6,"Windows, double glazed",546,m2,GLAZING,glass,GLAZING-DG-8MM,area_ratio,1.0,,"40% of 1365 m2 facade; glass only, frames excluded"
+PARTITIONS,2.7,"Internal partitions, plasterboard on metal studs",1500,m2,PARTITION,boards,PLASTERBOARD,thickness_m,0.05,,4 boards x 12.5 mm (two each side); 0.5 m2 of partition per m2 GIA
+PARTITIONS,2.7,"Internal partitions, plasterboard on metal studs",1500,m2,PARTITION,insulation,MINERAL-WOOL,thickness_m,0.05,,50 mm acoustic insulation; steel studs excluded

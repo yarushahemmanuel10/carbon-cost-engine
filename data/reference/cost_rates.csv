@@ -1,0 +1,12 @@
+ref,description,unit,rate_gbp,comment
+GF-SLAB,"Ground-bearing slab, 250 mm reinforced concrete, incl. DPM, mesh and edge formwork",m2,95,
+PAD-FDN,"Pad foundations, reinforced concrete, incl. excavation, formwork and rebar",m3,380,
+RC-COL,"Reinforced concrete columns, incl. formwork and rebar",m3,1250,
+RC-FLAT,"Suspended reinforced concrete flat slab, 275 mm, incl. formwork and rebar",m2,165,
+RC-ROOF,"Reinforced concrete roof slab, 250 mm, incl. 150 mm PIR insulation and membrane",m2,230,
+EXT-WALL,"Cavity wall: facing brick, 150 mm mineral wool, 100 mm block, dry lining",m2,320,
+GLAZING,"Windows and glazing, incl. frames",m2,750,"The carbon side covers the glass only; frames are not in the ICE per-m2 factor."
+PARTITION,"Plasterboard partition on metal studs, two boards each side, acoustic insulation",m2,85,"The carbon side excludes the steel studs."
+GLULAM-FRAME,"Glulam GL24h columns and beams, supplied and erected",m3,1800,
+CLT-FLOOR,"CLT floor panels, 200 mm, incl. 50 mm concrete topping",m2,190,
+CLT-ROOF,"CLT roof panels, 160 mm, incl. 150 mm PIR insulation and membrane",m2,240,
