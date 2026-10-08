@@ -6,6 +6,7 @@
 <div class="card">
 <h2 style="margin-top:0">{{ pr.p.name }}</h2>
 {% if pr.p.description %}<p class="note">{{ pr.p.description }}</p>{% endif %}
+<p><a href="{{ url_for('project_charts', pid=pr.p.id) }}">Charts: compare the options</a> · <a href="{{ url_for('export_project', pid=pr.p.id) }}">Download latest results as CSV (Power BI)</a></p>
 <table>
 <tr><th>Design option</th><th class="n">GIA m²</th><th class="n">Items</th><th class="n">Latest tCO₂e</th><th class="n">kgCO₂e/m²</th><th class="n">Cost</th><th>Run an assessment</th></tr>
 {% for v in pr.versions %}{% set r = latest.get(v.id) %}

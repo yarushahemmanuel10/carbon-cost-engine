@@ -8,8 +8,8 @@ company, and it is not a commercial tool.
 
 > **Status: work in progress.** Built so far: the database (Part 1), the
 > ICE ingestion (Part 2), the project import with an example building
-> (Part 3), the calculation engine (Part 4) and the web interface
-> (Part 5). Not built yet: charts, the Power BI export and the write-up. This README will be completed at the end; for now it
+> (Part 3), the calculation engine (Part 4), the web interface (Part 5)
+> and charts with a Power BI export (Part 6). Not built yet: the write-up. This README will be completed at the end; for now it
 > covers what exists.
 
 ## What is here
@@ -21,6 +21,8 @@ company, and it is not a commercial tool.
 | `carbon_cost/ingest/ice.py` | Reads the ICE summary sheet and loads the carbon factors |
 | `carbon_cost/ingest/densities.py` | Lists density candidates; loads the densities a person has confirmed |
 | `carbon_cost/app/` | The web interface (Flask): results, what-if swaps, comparison, upload |
+| `carbon_cost/charts.py` | Charts drawn as SVG on the server (no JavaScript); colour-blind-checked palette |
+| `carbon_cost/export.py` | Flat CSV export for Power BI |
 | `carbon_cost/engine.py` | Calculates carbon and cost, saves assessments, compares options, what-if material swaps |
 | `carbon_cost/ingest/project.py` | Loads the illustrative cost rates; imports a project from CSV files, checking everything first |
 | `data/reference/` | Small files written by hand for this project (committed) |
@@ -83,8 +85,20 @@ To use the tool:
 
    then go to <http://127.0.0.1:5000>. From there you can run assessments,
    see cost and carbon side by side by element, try a different material
-   (a what-if that saves nothing), compare two design options, edit
-   quantities and upload another project. Its assumptions are in
+   (a what-if that saves nothing), compare two design options, see charts
+   of all options side by side, edit quantities and upload another project.
+
+5. Export for Power BI or Excel (one row per line, in long form, so totals
+   sum without double counting):
+
+   ```
+   python -m carbon_cost.export
+   ```
+
+   This writes `exports/carbon_cost_export.csv` (also downloadable from the
+   web pages). It contains values derived from ICE, so it is for your own
+   use: `exports/` is git-ignored and every row says whether its source may
+   be redistributed. Its assumptions are in
    [`docs/example_assumptions.md`](docs/example_assumptions.md).
 
    (After `pip install`, the same two steps are also available as

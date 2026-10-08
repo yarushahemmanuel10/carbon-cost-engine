@@ -13,6 +13,8 @@
 </div>
 {% if r.notes %}<div class="warn">{{ r.notes }}</div>{% endif %}
 
+<div class="card">{{ bars|safe }}</div>
+
 <h2>Cost and carbon by element</h2>
 <table>
 <tr><th>NRM1</th><th>Element</th><th class="n">tCO₂e</th><th class="n">Share</th><th style="width:18%"></th><th class="n">kgCO₂e/m²</th><th class="n">Cost</th><th class="n">£/m²</th></tr>
@@ -53,6 +55,8 @@ Option total: {{ swap.total_before_kgco2e|t }} → <b>{{ swap.total_after_kgco2e
 {% endfor %}
 </table>
 
+<p><a href="{{ url_for('export_assessment', aid=r.assessment_id) }}">Download this assessment as CSV for Power BI</a>
+<span class="note">(contains values derived from the carbon data source; for your own use)</span></p>
 <p class="note">Reproduced from the stored rows: {{ 'matches' if reproduced.matches else 'DOES NOT MATCH' }}
 ({{ reproduced.recalculated_carbon_kgco2e|t }} tCO₂e, {{ reproduced.recalculated_cost_gbp|gbp }}).</p>
 {% if others %}

@@ -1,42 +1,5 @@
 """Part 5: the web interface, driven through Flask's test client. Synthetic data only."""
-import pytest
-
 from carbon_cost import db
-from carbon_cost.app import create_app
-
-
-@pytest.fixture
-def client(tmp_path):
-    """A file database (the app opens its own connections) with one slab item, like test_engine.build()."""
-    path = tmp_path / "app.db"
-    c = db.init_db(path)
-    c.executescript("""
-        INSERT INTO data_sources (id, name, publisher, version, licence, attribution_text, url, redistributable)
-            VALUES (1, 'Synthetic test data', 'Test', '1.0', 'none', 'Made-up numbers for tests', 'https://example.org', 1);
-        INSERT INTO materials (id, canonical_name, category, density_kg_m3, density_source)
-            VALUES (1, 'Test > Concrete > 32/40', 'Concrete', 2400, 'made up');
-        INSERT INTO materials (id, canonical_name, category) VALUES (2, 'Test rebar', 'Steel'), (5, 'Test green rebar', 'Steel'),
-            (6, 'Test aluminium', 'Aluminium');
-        INSERT INTO carbon_factors (material_id, value, unit, lifecycle_module, data_source_id, valid_from) VALUES
-            (1, 0.10, 'kgCO2e/kg', 'A1-A3', 1, '2020-01-01'), (2, 2.00, 'kgCO2e/kg', 'A1-A3', 1, '2020-01-01'),
-            (5, 0.50, 'kgCO2e/kg', 'A1-A3', 1, '2020-01-01'), (6, 9.00, 'kgCO2e/kg', 'A1-A3', 1, '2020-01-01');
-        INSERT INTO cost_rate_definitions (id, ref, description, unit) VALUES (1, 'T-SLAB', 'Test slab', 'm2');
-        INSERT INTO cost_rates (definition_id, rate_gbp, data_source_id, is_illustrative, valid_from) VALUES (1, 100, 1, 1, '2020-01-01');
-        INSERT INTO projects (id, name) VALUES (1, 'Test project');
-        INSERT INTO project_versions (id, project_id, label, gia_m2) VALUES (1, 1, 'Option A', 1000);
-        INSERT INTO element_items (id, project_version_id, element_id, description, quantity, unit, cost_rate_definition_id)
-            VALUES (1, 1, (SELECT id FROM elements WHERE code = '2.2'), 'Slab', 100, 'm2', 1);
-        INSERT INTO item_components (id, element_item_id, material_id, basis, basis_value) VALUES (1, 1, 1, 'thickness_m', 0.25);
-        INSERT INTO item_components (id, element_item_id, material_id, basis, basis_value, host_component_id)
-            VALUES (2, 1, 2, 'kg_per_m3', 100, 1);
-    """)
-    c.commit()
-    c.close()
-    app = create_app(path)
-    app.config["TESTING"] = True
-    with app.test_client() as cl:
-        cl.db_path = path
-        yield cl
 
 
 def page(resp):

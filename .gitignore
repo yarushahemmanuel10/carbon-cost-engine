@@ -4,6 +4,7 @@
 data/raw/
 data/staging/
 db/
+exports/
 *.xlsx
 *.xls
 *.db

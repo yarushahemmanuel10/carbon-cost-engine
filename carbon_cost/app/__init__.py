@@ -18,10 +18,10 @@ import tempfile
 from datetime import date
 from pathlib import Path
 
-from flask import Flask, abort, flash, g, redirect, render_template, request, url_for
+from flask import Flask, Response, abort, flash, g, redirect, render_template, request, url_for
 from werkzeug.utils import secure_filename
 
-from carbon_cost import db, engine as E
+from carbon_cost import charts, db, engine as E, export as X
 from carbon_cost.ingest import project as P
 
 
@@ -269,8 +269,70 @@ def create_app(db_path: str | Path = db.DEFAULT_DB_PATH) -> Flask:
         others = c.execute("SELECT a.id, v.label, a.as_of_date FROM assessments a JOIN project_versions v "
                            "ON v.id = a.project_version_id WHERE a.finalised_at IS NOT NULL AND a.id <> ? "
                            "ORDER BY a.id DESC", (aid,)).fetchall()
+        bars = charts.bar_chart(
+            [(f"{e['code']} {e['name']}", e["carbon_kgco2e"] / 1000,
+              f"{e['code']} {e['name']}: {e['carbon_kgco2e'] / 1000:,.1f} tCO2e ({e['carbon_share']:.0%}), cost £{e['cost_gbp']:,.0f}")
+             for e in r["elements"] if e["level"] == 2],
+            "Embodied carbon by element, largest first", unit="tCO₂e")
         return render_template("assessment.html", r=r, swap=swap, options=options, others=others,
-                               reproduced=E.reproduce(c, aid))
+                               reproduced=E.reproduce(c, aid), bars=bars)
+
+    @app.get("/assessments/<int:aid>/export.csv")
+    def export_assessment(aid):
+        try:
+            text = X.to_csv(conn(), [aid])
+        except LookupError:
+            abort(404)
+        return Response(text, mimetype="text/csv",
+                        headers={"Content-Disposition": f"attachment; filename=assessment_{aid}.csv"})
+
+    @app.get("/projects/<int:pid>/export.csv")
+    def export_project(pid):
+        c = conn()
+        ids = [r[0] for r in c.execute(
+            "SELECT max(a.id) FROM assessments a JOIN project_versions v ON v.id = a.project_version_id "
+            "WHERE v.project_id = ? AND v.archived = 0 AND a.finalised_at IS NOT NULL GROUP BY v.id ORDER BY v.id", (pid,))]
+        if not ids:
+            flash("Run at least one assessment before exporting.", "error")
+            return redirect(url_for("index"))
+        return Response(X.to_csv(c, ids), mimetype="text/csv",
+                        headers={"Content-Disposition": f"attachment; filename=project_{pid}_latest.csv"})
+
+    @app.get("/projects/<int:pid>/charts")
+    def project_charts(pid):
+        c = conn()
+        p = c.execute("SELECT * FROM projects WHERE id = ?", (pid,)).fetchone()
+        if p is None:
+            abort(404)
+        latest = latest_assessments(c)
+        versions = c.execute("SELECT id, label FROM project_versions WHERE project_id = ? AND archived = 0 ORDER BY id",
+                             (pid,)).fetchall()
+        res = [latest[v["id"]] for v in versions if v["id"] in latest]
+        if not res:
+            flash("Run an assessment for at least one design option first.", "error")
+            return redirect(url_for("index"))
+        names, opts = {}, []
+        for r in res:
+            parts = {}
+            for e in r["elements"]:
+                if e["level"] == 2:
+                    names[e["code"]] = e["name"]
+                    parts[e["code"]] = e["carbon_kgco2e_per_m2"]
+            opts.append((r["version"], parts, r["carbon_kgco2e_per_m2"]))
+        colours = charts.element_colours(names)
+        stacked = charts.stacked_bars(opts, colours, names, "Embodied carbon per m² GIA, by element")
+        scatter = charts.scatter([(r["version"], r["cost_gbp_per_m2"], r["carbon_kgco2e_per_m2"]) for r in res],
+                                 "Cost against carbon for each design option",
+                                 "cost, £ per m² GIA (illustrative rates)", "kgCO₂e per m² GIA (A1-A3)")
+        table = []
+        for r in res:
+            row = {"version": r["version"], "aid": r["assessment_id"], "as_of": r["as_of_date"],
+                   "total": r["carbon_kgco2e_per_m2"], "cost": r["cost_gbp_per_m2"], "bio": r["total_biogenic_kgco2e"],
+                   "by": {e["code"]: e["carbon_kgco2e_per_m2"] for e in r["elements"] if e["level"] == 2}}
+            table.append(row)
+        return render_template("charts.html", p=p, stacked=stacked, scatter=scatter, table=table,
+                               codes=list(colours), names=names, colours=colours, sources=res[0]["sources"],
+                               mixed_dates=len({r["as_of_date"] for r in res}) > 1)
 
     @app.get("/compare")
     def compare():

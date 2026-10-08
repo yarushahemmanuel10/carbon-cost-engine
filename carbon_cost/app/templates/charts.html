@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ p.name }}: charts{% endblock %}
+{% block body %}
+<p class="note"><a href="{{ url_for('index') }}">Projects</a> / {{ p.name }}</p>
+<h1>{{ p.name }}: design options compared</h1>
+<p class="sub">The latest finalised assessment of each design option. Hover over a bar or point for its values; the same numbers are in the table below.</p>
+{% if mixed_dates %}<div class="warn">These assessments use different as-of dates, so they may use different factors or rates.</div>{% endif %}
+<div class="card">{{ stacked|safe }}</div>
+<div class="card">{{ scatter|safe }}
+<p class="note">Lower and further left is better: less carbon and less cost. Options on the same vertical line have the same cost: a cost rate prices the finished work, and the rates were not changed for material-only variants (such as GGBS concrete or EAF rebar). Cost rates are illustrative, not commercial data.</p></div>
+
+<h2>The same numbers (kgCO₂e per m² GIA)</h2>
+<p class="note">Columns are NRM1 elements: {% for c in codes %}{{ c }} {{ names[c] }}{{ "; " if not loop.last }}{% endfor %}.</p>
+<table>
+<tr><th>Design option</th>{% for c in codes %}<th class="n" title="{{ c }} {{ names[c] }}"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:{{ colours[c] }}"></span> {{ c }}</th>{% endfor %}<th class="n">Total</th><th class="n">£/m²</th><th class="n">Biogenic stored, t</th></tr>
+{% for t in table %}
+<tr><td style="white-space:nowrap"><a href="{{ url_for('assessment', aid=t.aid) }}">{{ t.version }}</a><div class="note">as of {{ t.as_of }}</div></td>
+{% for c in codes %}<td class="n">{{ t.by.get(c, 0)|num }}</td>{% endfor %}
+<td class="n"><b>{{ t.total|num }}</b></td><td class="n">{{ t.cost|gbp }}</td><td class="n">{{ t.bio|t if t.bio else '' }}</td></tr>
+{% endfor %}
+</table>
+<div class="attrib"><b>Scope:</b> product stage (A1-A3) only, structure and envelope as modelled; no wastage. Not comparable with whole-life benchmarks.<br>
+<b>Sources:</b>{% for s in sources %} {{ s.attribution_text.rstrip('.') }}{% if s.url %} (<a href="{{ s.url }}">{{ s.url }}</a>){% endif %}.{% endfor %}</div>
+{% endblock %}
